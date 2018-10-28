@@ -2,13 +2,13 @@ import random
 import numpy
 import matplotlib.pyplot as plt
 
-SIZE_X=30
-SIZE_Y=30
+SIZE_X=100
+SIZE_Y=100
 
-HILL_MIN_HEIGHT = 3
+HILL_MIN_HEIGHT = 10
 HILL_MAX_HEIGHT = 10
 
-NUMBER_HILL = 20
+NUMBER_HILL = 2
 
 
 mat_map = numpy.full((SIZE_X, SIZE_Y),-2)
@@ -40,8 +40,12 @@ def calculateHeight(matrix, x, y):
     else:
         newHeight = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y-1],matrix[x, y+1])-1
 
+    #valid blocks can't be under 0
+    #invalid blocks should remain invalid (-2 is invalid value)
     if newHeight==-1:
         newHeight=0
+    elif newHeight == -3:
+        newheight = -2
 
     return newHeight
 
@@ -65,7 +69,7 @@ for temp in range(mat_rand_pos.shape[1]):
   mat_rand_pos[1,temp] = random.randint(0,SIZE_Y-1)
 
 for temp in range(mat_rand_height.shape[1]):
-  mat_rand_height[0,temp] = random.randint(3,10)
+  mat_rand_height[0,temp] = random.randint(HILL_MIN_HEIGHT,HILL_MAX_HEIGHT)
 
 #set fix values in map
 for temp in range(mat_rand_height.shape[1]):
