@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "HeightMapPrototype", "HeightMapPrototype\HeightMapPrototype.pyproj", "{2F33A5EA-D1DD-4748-8DF4-98131503FFD1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F33A5EA-D1DD-4748-8DF4-98131503FFD1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F33A5EA-D1DD-4748-8DF4-98131503FFD1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4EF151C2-59A0-469B-BDC2-1D755F98D3CA}
+	EndGlobalSection
+EndGlobal
