@@ -2,6 +2,8 @@ import random
 import numpy
 import matplotlib.pyplot as plt
 
+debug = 1
+
 SIZE_X=100
 SIZE_Y=100
 
@@ -18,34 +20,37 @@ mat_rand_height = numpy.ones((1,NUMBER_HILL))
 rows = mat_map.shape[0]
 cols = mat_map.shape[1]
 
+def getMaxValueOfAdjacentBlock(matrix, x ,y):
+    if (x == 0) and (y == 0):
+        adjValue = max(matrix[x+1, y],matrix[x, y+1])
+    elif (x == 0) and (y == SIZE_Y - 1):
+        adjValue = max(matrix[x+1, y],matrix[x, y-1])
+    elif (x == SIZE_X - 1) and (y == 0):
+        adjValue = max(matrix[x-1, y],matrix[x, y+1])
+    elif (x == SIZE_X - 1) and (y == SIZE_Y - 1):
+        adjValue = max(matrix[x-1, y],matrix[x, y-1])
+    elif x == 0:
+        adjValue = max(matrix[x+1, y],matrix[x, y-1],matrix[x, y+1])
+    elif  y == 0:
+        adjValue = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y+1])
+    elif x == SIZE_X - 1:
+        adjValue = max(matrix[x-1, y],matrix[x, y-1],matrix[x, y+1])
+    elif y == SIZE_Y - 1:
+        adjValue = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y-1])
+    else:
+        adjValue = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y-1],matrix[x, y+1])
+    return adjValue
+
 
 #calculate the height value of the block (x,y)
 def calculateHeight(matrix, x, y):
-    if (x == 0) and (y == 0):
-        newHeight = max(matrix[x+1, y],matrix[x, y+1])-1
-    elif (x == 0) and (y == SIZE_Y - 1):
-        newHeight = max(matrix[x+1, y],matrix[x, y-1])-1
-    elif (x == SIZE_X - 1) and (y == 0):
-        newHeight = max(matrix[x-1, y],matrix[x, y+1])-1
-    elif (x == SIZE_X - 1) and (y == SIZE_Y - 1):
-        newHeight = max(matrix[x-1, y],matrix[x, y-1])-1
-    elif x == 0:
-        newHeight = max(matrix[x+1, y],matrix[x, y-1],matrix[x, y+1])-1
-    elif  y == 0:
-        newHeight = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y+1])-1
-    elif x == SIZE_X - 1:
-        newHeight = max(matrix[x-1, y],matrix[x, y-1],matrix[x, y+1])-1
-    elif y == SIZE_Y - 1:
-        newHeight = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y-1])-1
-    else:
-        newHeight = max(matrix[x-1, y],matrix[x+1, y],matrix[x, y-1],matrix[x, y+1])-1
+    newHeight = getMaxValueOfAdjacentBlock(matrix, x ,y) -1
 
     #valid blocks can't be under 0
-    #invalid blocks should remain invalid (-2 is invalid value)
     if newHeight==-1:
         newHeight=0
-    elif newHeight == -3:
-        newheight = -2
+    elif newHeight<-1:
+        newHeight = -2
 
     return newHeight
 
@@ -71,9 +76,23 @@ for temp in range(mat_rand_pos.shape[1]):
 for temp in range(mat_rand_height.shape[1]):
   mat_rand_height[0,temp] = random.randint(HILL_MIN_HEIGHT,HILL_MAX_HEIGHT)
 
+#debug
+if debug == 1:
+    for temp in range(mat_rand_pos.shape[1]):
+      mat_rand_pos[0,temp] = round(HILL_MIN_HEIGHT*1.2*(temp+2))
+
+    for temp in range(mat_rand_pos.shape[1]):
+      mat_rand_pos[1,temp] = round(SIZE_Y/2)+1
+
+    for temp in range(mat_rand_height.shape[1]):
+      mat_rand_height[0,temp] = HILL_MAX_HEIGHT
+
 #set fix values in map
 for temp in range(mat_rand_height.shape[1]):
   mat_map[int(mat_rand_pos[0,temp]),int(mat_rand_pos[1,temp])]=mat_rand_height[0,temp]
+
+
+
 
 #calculate the height of indices set to -1
 while isMatrixReady(mat_map)==-1:
@@ -81,17 +100,13 @@ while isMatrixReady(mat_map)==-1:
         for y in range(0, cols):
             if mat_map[x,y] < -1:
                 mat_map[x,y] = calculateHeight(mat_map, x, y)
-
- 
-print (mat_map)
-#print(mat_rand_pos)
-#print(mat_rand_height)
+                #plt.show()
 
 
-
-# show hight map in 2d
+# show height map in 2d
 plt.figure()
 plt.title('z as 2d heat map')
 p = plt.imshow(mat_map)
 plt.colorbar(p)
 plt.show()
+
