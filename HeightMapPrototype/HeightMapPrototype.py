@@ -1,13 +1,14 @@
 import random
 import numpy
+import matplotlib.pyplot as plt
 
-SIZE_X=10
-SIZE_Y=10
+SIZE_X=30
+SIZE_Y=30
 
 HILL_MIN_HEIGHT = 3
 HILL_MAX_HEIGHT = 10
 
-NUMBER_HILL = 3
+NUMBER_HILL = 20
 
 
 mat_map = numpy.full((SIZE_X, SIZE_Y),-2)
@@ -81,3 +82,12 @@ while isMatrixReady(mat_map)==-1:
 print (mat_map)
 #print(mat_rand_pos)
 #print(mat_rand_height)
+
+
+
+# show hight map in 2d
+plt.figure()
+plt.title('z as 2d heat map')
+p = plt.imshow(mat_map)
+plt.colorbar(p)
+plt.show()
