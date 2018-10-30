@@ -2,27 +2,71 @@ import random
 import numpy
 import matplotlib.pyplot as plt
 
+########################
+#Configuration variables
+########################
 debug = 0
+method = 2 #1: hill, 2: ridge
 
 SIZE_X=100
 SIZE_Y=100
 
-HILL_MIN_HEIGHT = 5
-HILL_MAX_HEIGHT = 10
+if method == 1:
+    #hill
+    HILL_MIN_HEIGHT = 5
+    HILL_MAX_HEIGHT = 30
+    NUMBER_HILL = 6000
+elif method == 2:
+    #ridge
+    RIDGE_HEIGHT = 10
+    NUMBER_OF_RIDGE = 1
+    rdgSize = numpy.full((1,NUMBER_OF_RIDGE),20)
+    rdgDirection = numpy.full((2,NUMBER_OF_RIDGE),1)
+    rdgStart = numpy.full((NUMBER_OF_RIDGE,2),1)
+    rdgmatrix = numpy.full((2,0),0)
+    RIDGE_NOISE_VALUE = 0
 
-
-NUMBER_HILL = 400
-
+#####################
+#end of configuration
+#####################
 
 mat_map = numpy.full((SIZE_X, SIZE_Y),0)
-mat_rand_pos = numpy.ones((2, NUMBER_HILL))
-mat_rand_height = numpy.ones((1,NUMBER_HILL))
+if method == 1:
+    mat_rand_pos = numpy.ones((2, NUMBER_HILL))
+    mat_rand_height = numpy.ones((1,NUMBER_HILL))
 
 rows = mat_map.shape[0]
 cols = mat_map.shape[1]
 
+#######
 #checks
-assert HILL_MIN_HEIGHT <= HILL_MAX_HEIGHT
+#######
+if method == 1:
+    assert HILL_MIN_HEIGHT <= HILL_MAX_HEIGHT
+
+
+
+####################
+#Function definition
+####################
+
+#init the figure plot
+def initPlotHeightmap():
+    #init the figure but omit the show
+    plt.figure()
+    plt.title('z as 2d heat map')
+
+def showHeightmap():
+    p = plt.imshow(mat_map)
+    plt.colorbar(p)
+    plt.show()
+
+#Generate a ridge
+def genRidge(matrix, rdgSize, rdgNoise, rdgDirection, rdgStart_l):
+    for idx, block in enumerate(range(int(rdgSize))):
+        temp = rdgStart_l+idx*rdgDirection
+        matrix[temp[0],temp[1]]=RIDGE_HEIGHT  #WORK HERE!!! right the ridge blocks into the matrix 
+
 
 #gets the max values of the adjacent block in the matrix (no diagonal)
 def getMaxValueOfAdjacentBlock(matrix, x ,y):
@@ -53,10 +97,7 @@ def calculateHeight(matrix, x, y):
 
     #height of the block can't decrease
     if newHeight < matrix[x,y]:
-        newHeight = matrix[x,y]
-
-    #valid blocks can't be under 0
-    assert newHeight>=0
+        newHeight = matrix[x,y]    
 
     return newHeight
 
@@ -74,15 +115,39 @@ def isMatrixReady(matrix):
 
 
 
-#init of random matrix
-for temp in range(mat_rand_pos.shape[1]):
-  mat_rand_pos[0,temp] = random.randint(0,SIZE_X-1)
 
-for temp in range(mat_rand_pos.shape[1]):
-  mat_rand_pos[1,temp] = random.randint(0,SIZE_Y-1)
 
-for temp in range(mat_rand_height.shape[1]):
-  mat_rand_height[0,temp] = random.randint(HILL_MIN_HEIGHT,HILL_MAX_HEIGHT)
+
+
+
+
+
+########################
+#Start of execution here
+########################
+
+
+initPlotHeightmap()
+
+
+#init of random matrices
+if method == 1:
+    #hill location
+    for temp in range(mat_rand_pos.shape[1]):
+      mat_rand_pos[:,temp] = [random.randint(0,SIZE_X-1), random.randint(0,SIZE_Y-1)]
+    #hill height
+    for temp in range(mat_rand_height.shape[1]):
+      mat_rand_height[0,temp] = random.randint(HILL_MIN_HEIGHT,HILL_MAX_HEIGHT)
+elif method == 2:
+    #ridge size
+    for temp in range(0,NUMBER_OF_RIDGE):
+        rdgSize[0,temp] = 20
+    #ridge start
+    for temp in range(0,NUMBER_OF_RIDGE):
+        rdgStart[temp, :] = [5, 8]
+    #generate the ridge
+    genRidge(mat_map, rdgSize[0], RIDGE_NOISE_VALUE, rdgDirection[0], rdgStart[0,:])
+
 
 #debug
 if debug == 1:
@@ -96,8 +161,9 @@ if debug == 1:
       mat_rand_height[0,temp] = HILL_MAX_HEIGHT
 
 #set fix values in map
-for temp in range(mat_rand_height.shape[1]):
-    mat_map[int(mat_rand_pos[0,temp]),int(mat_rand_pos[1,temp])]=mat_rand_height[0,temp]
+if method == 1:
+    for temp in range(mat_rand_height.shape[1]):
+        mat_map[int(mat_rand_pos[0,temp]),int(mat_rand_pos[1,temp])]=mat_rand_height[0,temp]
 
 
 
@@ -106,14 +172,12 @@ for temp in range(mat_rand_height.shape[1]):
 while isMatrixReady(mat_map)==-1:
     for x in range(0, rows):
         for y in range(0, cols):
-            mat_map[x,y] = calculateHeight(mat_map, x, y)
-                #plt.show()
+             newHeightTemp = calculateHeight(mat_map, x, y)
+             if newHeightTemp >= 0:
+                 mat_map[x,y]=newHeightTemp
+             else:
+                raise ValueError('Error: new heigh value was under 0')
 
 
-# show height map in 2d
-plt.figure()
-plt.title('z as 2d heat map')
-p = plt.imshow(mat_map)
-plt.colorbar(p)
-plt.show()
+showHeightmap()
 
