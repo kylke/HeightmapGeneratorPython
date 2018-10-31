@@ -18,19 +18,23 @@ if method == 1:
     NUMBER_HILL = 6000
 elif method == 2:
     #ridge
-    RIDGE_HEIGHT = 10
-    NUMBER_OF_RIDGE = 1
-    rdgSize = numpy.full((1,NUMBER_OF_RIDGE),20)
-    rdgDirection = numpy.full((2,NUMBER_OF_RIDGE),1)
-    rdgStart = numpy.full((NUMBER_OF_RIDGE,2),1)
-    rdgmatrix = numpy.full((2,0),0)
+    NUMBER_OF_RIDGE = 30
+    RIDGE_HEIGHT_MIN = 10
+    RIDGE_HEIGHT_MAX = 10
+    RIDGE_SIZE_MIN = 15
+    RIDGE_SIZE_MAX = 30
     RIDGE_NOISE_VALUE = 0
 
 #####################
 #end of configuration
 #####################
 
-mat_map = numpy.full((SIZE_X, SIZE_Y),0)
+mat_map = numpy.ones((SIZE_X, SIZE_Y))
+rdgSize = numpy.ones((1,NUMBER_OF_RIDGE))
+rdgHeight = numpy.ones((1,NUMBER_OF_RIDGE))
+rdgDirection = numpy.ones((NUMBER_OF_RIDGE, 2))
+rdgStart = numpy.ones((NUMBER_OF_RIDGE, 2))
+
 if method == 1:
     mat_rand_pos = numpy.ones((2, NUMBER_HILL))
     mat_rand_height = numpy.ones((1,NUMBER_HILL))
@@ -63,9 +67,11 @@ def showHeightmap():
 
 #Generate a ridge
 def genRidge(matrix, rdgSize, rdgNoise, rdgDirection, rdgStart_l):
-    for idx, block in enumerate(range(int(rdgSize))):
-        temp = rdgStart_l+idx*rdgDirection
-        matrix[temp[0],temp[1]]=RIDGE_HEIGHT  #WORK HERE!!! right the ridge blocks into the matrix 
+        for idx, block in enumerate(range(int(rdgSize))):
+            temp = rdgStart_l+idx*rdgDirection
+            if (temp[0] >= SIZE_X-1) or (temp[1] >= SIZE_Y-1) or (temp[0] == 0) or (temp[1] == 0):
+                return
+            matrix[int(temp[0]),int(temp[1])]=rdgHeight[0,idx]
 
 
 #gets the max values of the adjacent block in the matrix (no diagonal)
@@ -141,12 +147,24 @@ if method == 1:
 elif method == 2:
     #ridge size
     for temp in range(0,NUMBER_OF_RIDGE):
-        rdgSize[0,temp] = 20
+        rdgSize[0,temp] = random.randint(RIDGE_SIZE_MIN, RIDGE_SIZE_MAX)
+    #ridge height
+    for temp in range(0,NUMBER_OF_RIDGE):
+        rdgHeight[0,temp] = random.randint(RIDGE_HEIGHT_MIN, RIDGE_HEIGHT_MAX)
     #ridge start
     for temp in range(0,NUMBER_OF_RIDGE):
-        rdgStart[temp, :] = [5, 8]
+        rdgStart[temp, :] = [random.randint(0,SIZE_X-1), random.randint(0,SIZE_Y-1)]
+    #ridge directtion
+    for temp in range(0,NUMBER_OF_RIDGE):
+        while True: #direction must not be (0,0)
+            x=random.randint(-1,1)
+            y=random.randint(-1,1)
+            if (x!=0) or (y!=0):
+                break
+        rdgDirection[temp, :] = [x, y]
     #generate the ridge
-    genRidge(mat_map, rdgSize[0], RIDGE_NOISE_VALUE, rdgDirection[0], rdgStart[0,:])
+    for temp in range(NUMBER_OF_RIDGE):
+        genRidge(mat_map, rdgSize[0,temp], RIDGE_NOISE_VALUE, rdgDirection[temp,:], rdgStart[temp,:])
 
 
 #debug
