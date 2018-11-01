@@ -6,24 +6,24 @@ import matplotlib.pyplot as plt
 #Configuration variables
 ########################
 debug = 0
-method = 2 #1: hill, 2: ridge
+method = 3 #1: hill, 2: ridge, 3: combined
 
 SIZE_X=100
 SIZE_Y=100
 
-if method == 1:
+if method in (1 , 3):
     #hill
     HILL_MIN_HEIGHT = 5
-    HILL_MAX_HEIGHT = 30
-    NUMBER_HILL = 6000
-elif method == 2:
+    HILL_MAX_HEIGHT = 10
+    NUMBER_HILL = 10
+if method in (2 , 3):
     #ridge
-    NUMBER_OF_RIDGE = 30
-    RIDGE_HEIGHT_MIN = 10
+    NUMBER_OF_RIDGE = 10
+    RIDGE_HEIGHT_MIN = 7
     RIDGE_HEIGHT_MAX = 10
     RIDGE_SIZE_MIN = 15
     RIDGE_SIZE_MAX = 30
-    RIDGE_NOISE_VALUE = 0
+    RIDGE_NOISE_VALUE = 0 #not implemented
 
 #####################
 #end of configuration
@@ -35,7 +35,7 @@ rdgHeight = numpy.ones((1,NUMBER_OF_RIDGE))
 rdgDirection = numpy.ones((NUMBER_OF_RIDGE, 2))
 rdgStart = numpy.ones((NUMBER_OF_RIDGE, 2))
 
-if method == 1:
+if method in (1 , 3):
     mat_rand_pos = numpy.ones((2, NUMBER_HILL))
     mat_rand_height = numpy.ones((1,NUMBER_HILL))
 
@@ -66,12 +66,12 @@ def showHeightmap():
     plt.show()
 
 #Generate a ridge
-def genRidge(matrix, rdgSize, rdgNoise, rdgDirection, rdgStart_l):
+def genRidge(matrix, rdgSize, rdgNoise, rdgDirection, rdgStart_l, rdgHeight_l):
         for idx, block in enumerate(range(int(rdgSize))):
             temp = rdgStart_l+idx*rdgDirection
             if (temp[0] >= SIZE_X-1) or (temp[1] >= SIZE_Y-1) or (temp[0] == 0) or (temp[1] == 0):
                 return
-            matrix[int(temp[0]),int(temp[1])]=rdgHeight[0,idx]
+            matrix[int(temp[0]),int(temp[1])]=rdgHeight_l
 
 
 #gets the max values of the adjacent block in the matrix (no diagonal)
@@ -126,8 +126,6 @@ def isMatrixReady(matrix):
 
 
 
-
-
 ########################
 #Start of execution here
 ########################
@@ -137,14 +135,14 @@ initPlotHeightmap()
 
 
 #init of random matrices
-if method == 1:
+if method in (1 , 3):
     #hill location
     for temp in range(mat_rand_pos.shape[1]):
       mat_rand_pos[:,temp] = [random.randint(0,SIZE_X-1), random.randint(0,SIZE_Y-1)]
     #hill height
     for temp in range(mat_rand_height.shape[1]):
       mat_rand_height[0,temp] = random.randint(HILL_MIN_HEIGHT,HILL_MAX_HEIGHT)
-elif method == 2:
+if method in (2 , 3):
     #ridge size
     for temp in range(0,NUMBER_OF_RIDGE):
         rdgSize[0,temp] = random.randint(RIDGE_SIZE_MIN, RIDGE_SIZE_MAX)
@@ -164,7 +162,7 @@ elif method == 2:
         rdgDirection[temp, :] = [x, y]
     #generate the ridge
     for temp in range(NUMBER_OF_RIDGE):
-        genRidge(mat_map, rdgSize[0,temp], RIDGE_NOISE_VALUE, rdgDirection[temp,:], rdgStart[temp,:])
+        genRidge(mat_map, rdgSize[0,temp], RIDGE_NOISE_VALUE, rdgDirection[temp,:], rdgStart[temp,:], rdgHeight[0,temp])
 
 
 #debug
@@ -179,10 +177,9 @@ if debug == 1:
       mat_rand_height[0,temp] = HILL_MAX_HEIGHT
 
 #set fix values in map
-if method == 1:
+if method in (1 , 3):
     for temp in range(mat_rand_height.shape[1]):
         mat_map[int(mat_rand_pos[0,temp]),int(mat_rand_pos[1,temp])]=mat_rand_height[0,temp]
-
 
 
 
