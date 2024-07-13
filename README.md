@@ -1,2 +1,2 @@
 # HeightmapGeneratorPython
-VERY simple height map generator built in python. Don't use it, I am a noob, it's probably very bad...
+VERY simple height map generator built in python.
